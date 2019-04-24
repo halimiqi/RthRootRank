@@ -16,8 +16,8 @@ class r_CNN(nn.Module):
         self.conv2 = nn.Conv2d(kernel_num_list[0], kernel_num_list[1], kernel_size = 3,stride=stride_list[1], padding=0, bias=False)
         self.conv3 = nn.Conv2d(kernel_num_list[1], kernel_num_list[2], kernel_size = 3,stride=stride_list[2], padding=0, bias=False)
         self.conv4 = nn.Conv2d(kernel_num_list[2], kernel_num_list[3], kernel_size = 3,stride=stride_list[3], padding=0, bias=False)
-        self.fc5 = nn.Linear(kernel_num_list[3],512)
-        self.fc6 = nn.Linear(512, output_size)
+        self.fc5 = nn.Linear(kernel_num_list[3],256)
+        self.fc6 = nn.Linear(256, output_size)
 
     def forward(self, image_x):
         x = self.conv1(image_x)

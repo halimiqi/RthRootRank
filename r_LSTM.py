@@ -38,7 +38,7 @@ HIDDEN_DIM = 6
 
 class r_LSTM(nn.Module):
 
-    def __init__(self, embedding_dim, hidden_dim, input_size, output_size):
+    def __init__(self,input_size, embedding_dim, hidden_dim, output_size):
         super(r_LSTM, self).__init__()
         self.hidden_dim = hidden_dim
 
@@ -53,7 +53,7 @@ class r_LSTM(nn.Module):
         self.hidden2output = nn.Linear(hidden_dim, output_size)  # this can be viewed as full connect layer
 
     def forward(self, seq):
-        embeds = self.word_embeddings(seq)
+        embeds = self.fc1(seq)
         lstm_out, (last_h, last_c) = self.lstm(embeds.view(len(seq), 1, -1))
         r_lstm_out = self.hidden2output(last_h)
         #tag_scores = F.log_softmax(tag_space, dim=1)
