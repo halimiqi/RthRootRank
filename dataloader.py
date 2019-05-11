@@ -40,5 +40,13 @@ class EGG_Dataset(Dataset):
         sample["label"] = self.all_label[idx]
         return sample
 
+    def generate_target_sample(self, target_label):
+        Flag = True
+        while Flag:
+            rand_idx = np.random.randint(0, len(self.all_label)-1)
+            if self.all_label[rand_idx] == target_label:
+                return self.all_list[rand_idx]
+
+
 if __name__ == "__main__":
-    dataset = EGG_Dataset()
+    dataset = EGG_Dataset("data/eeg-eye-state_csv.csv")

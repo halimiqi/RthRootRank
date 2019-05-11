@@ -1,6 +1,6 @@
 
 # CNN structure
-CNN_EMBED_SIZE = 15
+CNN_EMBED_SIZE = 15  # CNN and LSTM embedding size should be same
 
 # LSTM structure
 LSTM_INPUT_EMBED_SIZE = 64
@@ -12,3 +12,9 @@ LINEAR_EMBED_SIZE = 64
 # trainging parameter
 BATCH_SIZE = 64
 NUM_WORKER = 4
+
+LR = 0.1
+ADAM_BETA1 = 0.9
+ADAM_BETA2 = 0.99
+
+EPOCH = 100

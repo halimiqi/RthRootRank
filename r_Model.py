@@ -73,13 +73,12 @@ class my_Linear(Module):
 
 class r_Model(nn.Module):
 
-    def __init__(self, cnn,lstm,cnn_input_channel,lstm_input_feature, embedding_num ,sample_num, norm_layer = None):
+    def __init__(self, cnn,lstm,cnn_input_channel,lstm_input_feature, norm_layer = None):
         super(r_Model, self).__init__()
         #self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         # the linear layer to convert size into embeddings
         self.cnn = cnn(cnn_input_channel,config.CNN_EMBED_SIZE, kernel_num_list = [16,32,64,64],stride_list = [1,2,2,1],norm_layer = None)
         self.lstm = lstm(lstm_input_feature, config.LSTM_INPUT_EMBED_SIZE, config.LSTM_HIDDEN_SIZE, config.LSTM_OUTPUT_EMBED_SIZE)
-
         self.linear_weight = Parameter(torch.Tensor((config.LSTM_OUTPUT_EMBED_SIZE + config.CNN_EMBED_SIZE), config.LINEAR_EMBED_SIZE))
     def forward(self, x):
         # x = self.conv1(x)
