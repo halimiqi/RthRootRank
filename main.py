@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import numpy as np
+import shutil
 import time
 import dataloader
 import config
@@ -46,15 +48,36 @@ def train(train_set,train_loader, model, loss, optimizer):
             output = model(input)
             # get X_i
             X_i = train_set.generate_target_sample(label)
-            loss = loss()
+            X_i = model(X_i)
+
+            # get the negative label
+            X_j_list = train_set.generate_negative_sample(config.NUMBER_DISSIMILAR,label)
+            X_j_list = np.array(X_j_list)
+            X_j_list = model(X_j_list)
+            loss = loss(output, X_i, X_j_list,num_of_unsimiliar = len(X_j_list))
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
     return
+
+def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):
+    torch.save(state, filename)
+    if is_best:
+        shutil.copyfile(filename, 'model_best.pth.tar')
 
 def main():
     train_set = dataloader.EGG_Dataset(path = "data/eeg-eye-state_csv.csv")
     train_loader = torch.utils.data.DataLoader(train_set, batch_size = config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKER)
-    model = r_Model.r_Model(r_CNN,r_LSTM,lstm_input_feature = 14)
+    model = r_Model.r_Model(r_CNN,r_LSTM,cnn_input_channel = 1,lstm_input_feature = 14)
     optimizer = torch.optim.Adam(model.parameters(), config.LR, betas = (config.ADAM_BETA1, config.ADAM_BETA2))
-    train(train_set,train_loader, model, my_loss,optimizer)
+    for i in range(config.EPOCH):
+        train(train_set,train_loader, model, my_loss,optimizer)
+
+        save_checkpoint({
+            'epoch': i + 1,
+            'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict(),
+        }, is_best = False )
     return
 
 if __name__ == "__main__":

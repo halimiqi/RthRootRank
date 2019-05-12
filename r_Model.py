@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 import torch.optim as optim
 import r_CNN as rcnn
 import r_LSTM as rlstm
