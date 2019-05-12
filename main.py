@@ -11,6 +11,18 @@ import r_Model
 from r_CNN import r_CNN
 from r_LSTM import r_LSTM
 def my_loss(output, similiar_target,unsim_list,num_of_unsimiliar = 50, r = 2, my_lambda = 0.1, M = 100000):
+    """
+    This is based on the base version
+    :param output:
+    :param similiar_target:
+    :param unsim_list:
+    :param num_of_unsimiliar:
+    :param r:
+    :param my_lambda:
+    :param M:
+    :return:
+    """
+
     sig = nn.Sigmoid()
     loss = torch.tensor(0)
     V_qi = get_V(output, similiar_target)
@@ -24,7 +36,7 @@ def my_loss(output, similiar_target,unsim_list,num_of_unsimiliar = 50, r = 2, my
     return loss
 
 def get_V(output, target):
-    V = torch.norm((output - target), p=1)
+    V = torch.norm((output - target), p=1, dim = 1)
     return V
 
 def train(train_set,train_loader, model, loss, optimizer):
@@ -41,23 +53,27 @@ def train(train_set,train_loader, model, loss, optimizer):
     start = time.time()
     # read the data
     for i , batch_sample in enumerate(train_loader):
-        for sample in batch_sample:
         # get X_q
-            input = sample["seq"]
-            label = sample["label"]
-            output = model(input)
-            # get X_i
-            X_i = train_set.generate_target_sample(label)
+        inputs = batch_sample["seq"]
+        labels = batch_sample["label"]
+        outputs = model(inputs)
+        # get X_i
+        X_i_list = []
+        X_j_list_outer = []
+        for label in labels:
+            X_i = train_set.generate_target_sample(labels)
             X_i = model(X_i)
+            X_i_list.apend(X_i)
 
-            # get the negative label
+        # get the negative label
             X_j_list = train_set.generate_negative_sample(config.NUMBER_DISSIMILAR,label)
             X_j_list = np.array(X_j_list)
             X_j_list = model(X_j_list)
-            loss = loss(output, X_i, X_j_list,num_of_unsimiliar = len(X_j_list))
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            X_j_list_outer.append(X_j_list)
+        loss = loss(outputs, X_i_list, X_j_list_outer,num_of_unsimiliar = len(X_j_list_outer)) ## the loss of the batch
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
     return
 
 def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):
