@@ -74,13 +74,15 @@ class my_Linear(Module):
 
 class r_Model(nn.Module):
 
-    def __init__(self, cnn,lstm,cnn_input_channel,lstm_input_feature, norm_layer = None):
+    def __init__(self, cnn,lstm,cnn_input_channel,lstm_input_feature,cnn_width = 5, cnn_height = 14, norm_layer = None):
         super(r_Model, self).__init__()
         #self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
         # the linear layer to convert size into embeddings
+        self.cnn_width = cnn_width
+        self.cnn_height = cnn_height
         self.cnn = cnn(cnn_input_channel,config.CNN_EMBED_SIZE, kernel_num_list = [16,32,64,64],stride_list = [1,2,2,1],norm_layer = None)
         self.lstm = lstm(lstm_input_feature, config.LSTM_INPUT_EMBED_SIZE, config.LSTM_HIDDEN_SIZE, config.LSTM_OUTPUT_EMBED_SIZE)
-        self.linear_weight = Parameter(torch.Tensor((config.LSTM_OUTPUT_EMBED_SIZE + config.CNN_EMBED_SIZE), config.LINEAR_EMBED_SIZE))
+        self.linear_weight = Parameter(torch.rand(config.LINEAR_EMBED_SIZE,(config.LSTM_OUTPUT_EMBED_SIZE + config.CNN_EMBED_SIZE)))
     def forward(self, x):
         # x = self.conv1(x)
         # x = self.relu(x)
@@ -92,10 +94,11 @@ class r_Model(nn.Module):
         # x = self.relu(x)
         # x = self.fc5(x)
         # cnn_output = self.fc6(x)
-        x = self.cnn(x)
-        y = self.lstm(x)
-        output = torch.cat((x, y), 2)
-        bias = output.mean(2)
+        x_cnn = x.view(-1,1,self.cnn_width, self.cnn_height)
+        x_cnn = self.cnn(x_cnn)
+        y_lstm = self.lstm(x)
+        output = torch.cat((x_cnn, y_lstm), 1)
+        bias = output.mean(1).view(-1,1)
         output = output.sub(bias)
         output = F.linear(output, self.linear_weight,bias = None)
         output = F.tanh(output)

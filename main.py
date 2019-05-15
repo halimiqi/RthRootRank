@@ -22,9 +22,8 @@ def my_loss(output, similiar_target,unsim_list,num_of_unsimiliar = 50, r = 2, my
     :param M:
     :return:
     """
-
     sig = nn.Sigmoid()
-    loss = torch.tensor(0)
+    loss = torch.zeros(len(output), dtype=torch.float32)
     V_qi = get_V(output, similiar_target)
     V_qj_list = []
     for i in range(num_of_unsimiliar):
@@ -56,7 +55,7 @@ def train(train_set,train_loader, model, loss, optimizer):
         # get X_q
         inputs = batch_sample["seq"]
         labels = batch_sample["label"]
-        outputs = model(inputs)
+        outputs = model(inputs.float())
         # get X_i
         X_i_list = []
         X_j_list_outer = []
@@ -84,7 +83,8 @@ def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):
 def main():
     train_set = dataloader.EGG_Dataset(path = "data/eeg-eye-state_csv.csv")
     train_loader = torch.utils.data.DataLoader(train_set, batch_size = config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKER)
-    model = r_Model.r_Model(r_CNN,r_LSTM,cnn_input_channel = 1,lstm_input_feature = 14)
+    model = r_Model.r_Model(r_CNN,r_LSTM,cnn_input_channel = 1,lstm_input_feature = 14, cnn_width=config.TIMESTAPE, cnn_height=config.FEATURE_NUM)
+    model = model.float()
     optimizer = torch.optim.Adam(model.parameters(), config.LR, betas = (config.ADAM_BETA1, config.ADAM_BETA2))
     for i in range(config.EPOCH):
         train(train_set,train_loader, model, my_loss,optimizer)

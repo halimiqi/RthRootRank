@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
+import config
 torch.manual_seed(1)
 
 # Prepare data:
@@ -47,15 +47,15 @@ class r_LSTM(nn.Module):
         self.fc1 = nn.Linear(input_size, embedding_dim)
         # The LSTM takes word embeddings as inputs, and outputs hidden states
         # with dimensionality hidden_dim.
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
 
         # The linear layer that maps from hidden state space to tag space
         self.hidden2output = nn.Linear(hidden_dim, output_size)  # this can be viewed as full connect layer
 
     def forward(self, seq):
         embeds = self.fc1(seq)
-        lstm_out, (last_h, last_c) = self.lstm(embeds.view(len(seq), 1, -1))
-        r_lstm_out = self.hidden2output(last_h)
+        lstm_out, (last_h, last_c) = self.lstm(embeds)
+        r_lstm_out = self.hidden2output(lstm_out[:,-1,:])
         #tag_scores = F.log_softmax(tag_space, dim=1)
         return r_lstm_out
 
