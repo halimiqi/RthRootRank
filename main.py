@@ -60,7 +60,7 @@ def train(train_set,train_loader, model, loss, optimizer):
         X_i_list = []
         X_j_list_outer = []
         for label in labels:
-            X_i = train_set.generate_target_sample(labels)
+            X_i = train_set.generate_target_sample(label)
             X_i = model(X_i)
             X_i_list.apend(X_i)
 
