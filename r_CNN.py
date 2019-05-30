@@ -29,7 +29,7 @@ class r_CNN(nn.Module):
         x = self.relu(x)
         x = self.conv4(x)
         x = self.relu(x)
-        x = x.view(config.BATCH_SIZE, -1)
+        x = x.view(x.shape[0], -1)
         x = self.fc5(x)
         cnn_output = self.fc6(x)
         #tag_scores = F.log_softmax(tag_space, dim=1)

@@ -61,14 +61,13 @@ def train(train_set,train_loader, model, loss, optimizer):
         X_j_list_outer = []
         for label in labels:
             X_i = train_set.generate_target_sample(label)
-            X_i = model(X_i)
-            X_i_list.apend(X_i)
-
+            X_i_list.append(X_i)
         # get the negative label
             X_j_list = train_set.generate_negative_sample(config.NUMBER_DISSIMILAR,label)
             X_j_list = np.array(X_j_list)
-            X_j_list = model(X_j_list)
+            X_j_list = model(torch.Tensor(X_j_list))
             X_j_list_outer.append(X_j_list)
+        X_i_list = model(torch.Tensor(X_i_list))
         loss = loss(outputs, X_i_list, X_j_list_outer,num_of_unsimiliar = len(X_j_list_outer)) ## the loss of the batch
         optimizer.zero_grad()
         loss.backward()
