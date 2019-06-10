@@ -72,6 +72,7 @@ def train(train_set,train_loader, model, loss_func, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        print(i)
     return loss
 
 def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):

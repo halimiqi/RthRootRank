@@ -23,16 +23,18 @@ class EGG_Dataset(Dataset):
         last_class = 1
         last_index = 0
         for i in range(len(self.eeg_df)):
-            if self.eeg_df.loc[i,"Class"] != last_class:
+            if (self.eeg_df.loc[i,"Class"] != last_class) or (i == (len(self.eeg_df) - 1)): # when the label change, do the split
                 tmp_array = self.eeg_df.iloc[last_index:i,0:14].values
+                last_index = i
                 # slice the previous array
                 for j in range((len(tmp_array) -2) // 3): # how many segments
                     segment = tmp_array[3*j:3*j + 5,:]
                     self.all_list.append(segment)
                     self.all_label.append(last_class)
-                last_class = self.eeg_df.loc[i,"Class"]
+                last_class = self.eeg_df.loc[i,"Class"]  # update teh last_classs
                 if last_class not in self.label_set:
                     self.label_set.add(last_class)
+
         a = 1
     def __len__(self):
         # get the length of the data set
@@ -66,3 +68,5 @@ class EGG_Dataset(Dataset):
         return output_list
 if __name__ == "__main__":
     dataset = EGG_Dataset("data/eeg-eye-state_csv.csv")
+    print(dataset.__len__())
+    a = 1
