@@ -102,6 +102,6 @@ class r_Model(nn.Module):
         bias = output.mean(1).view(-1,1)
         output = output.sub(bias)
         output = F.linear(output, self.linear_weight,bias = None)
-        output = F.tanh(output)
+        output = torch.tanh(output)
         #tag_scores = F.log_softmax(tag_space, dim=1)
         return output

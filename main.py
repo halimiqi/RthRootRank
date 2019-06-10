@@ -71,8 +71,8 @@ def train(train_set,train_loader, model, loss_func, optimizer):
         loss = loss_func(outputs, X_i_list, X_j_list_outer,batch_num = len(X_j_list_outer)) ## the loss of the batch
         optimizer.zero_grad()
         loss.backward()
-        optimizer. step()
-    return
+        optimizer.step()
+    return loss
 
 def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):
     torch.save(state, filename)
@@ -86,8 +86,8 @@ def main():
     model = model.float()
     optimizer = torch.optim.Adam(model.parameters(), config.LR, betas = (config.ADAM_BETA1, config.ADAM_BETA2),weight_decay = config.ADAM_LAMBDA / 2)
     for i in range(config.EPOCH):
-        train(train_set,train_loader, model, my_loss,optimizer)
-
+        print_loss = train(train_set,train_loader, model, my_loss,optimizer)
+        print("epoch[%d]\tloss:%f"%(i,print_loss))
         save_checkpoint({
             'epoch': i + 1,
             'state_dict': model.state_dict(),
