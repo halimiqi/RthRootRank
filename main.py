@@ -72,7 +72,6 @@ def train(train_set,train_loader, model, loss_func, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print(i)
     return loss
 
 def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):
@@ -81,6 +80,8 @@ def save_checkpoint(state, is_best, filename = 'checkpoint.pth.tar'):
         shutil.copyfile(filename, 'model_best.pth.tar')
 
 def main():
+    min_loss = 0
+    is_best = False
     train_set = dataloader.EGG_Dataset(path = "data/eeg-eye-state_csv.csv")
     train_loader = torch.utils.data.DataLoader(train_set, batch_size = config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKER)
     model = r_Model.r_Model(r_CNN,r_LSTM,cnn_input_channel = 1,lstm_input_feature = 14, cnn_width=config.TIMESTAPE, cnn_height=config.FEATURE_NUM)
@@ -88,12 +89,19 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), config.LR, betas = (config.ADAM_BETA1, config.ADAM_BETA2),weight_decay = config.ADAM_LAMBDA / 2)
     for i in range(config.EPOCH):
         print_loss = train(train_set,train_loader, model, my_loss,optimizer)
+        if min_loss == 0:
+            min_loss = print_loss
+        else:
+            if min_loss > print_loss:
+                min_loss = print_loss
+                is_best = True
         print("epoch[%d]\tloss:%f"%(i,print_loss))
         save_checkpoint({
             'epoch': i + 1,
             'state_dict': model.state_dict(),
             'optimizer': optimizer.state_dict(),
-        }, is_best = False )
+        }, is_best = is_best )
+        is_best = False
     return
 
 if __name__ == "__main__":
