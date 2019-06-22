@@ -22,6 +22,7 @@ class EGG_Dataset(Dataset):
     label_set = set()
     mean_list = []
     std_list = []
+    Negtive_num = 0
     def __init__(self, path):
         super(EGG_Dataset, self).__init__()
         # load the csv here
@@ -88,9 +89,18 @@ class EGG_Dataset(Dataset):
                 sampled_num += 1
         return output_list
 
+    def Num_for_each_class(self):
+        label_count_list = {}
+        for item in self.label_set:
+            label_count_list[str(item)] = self.train_label.count(item)
+        return label_count_list
+
+    def get_train_data(self):
+        return self.train_list, self.train_label
     def get_test_data(self):
         return self.test_list, self.test_label
 if __name__ == "__main__":
     dataset = EGG_Dataset("data/eeg-eye-state_csv.csv")
+    test = dataset.Num_for_each_class()
     print(dataset.__len__())
     a = 1

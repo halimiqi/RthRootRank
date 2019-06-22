@@ -1,3 +1,6 @@
+# RESUME
+RESUME = True
+
 
 # CNN structure
 CNN_EMBED_SIZE = 15  # CNN and LSTM embedding size should be same
@@ -15,13 +18,15 @@ FEATURE_NUM = 14
 # trainging parameter
 BATCH_SIZE = 64
 NUM_WORKER = 4
-NUMBER_DISSIMILAR = 64
+NUMBER_DISSIMILAR = 64 # this is M in the paper
 
-LR = 0.0001
+#for loss
+LR = 0.00001
 ADAM_BETA1 = 0.9
 ADAM_BETA2 = 0.99
 ADAM_LAMBDA = 0.00001
+R = 5
 
-EPOCH = 100
+EPOCH = 500
 TRAIN_RATIO = 0.8
 TEST_RATIO = 0.1
