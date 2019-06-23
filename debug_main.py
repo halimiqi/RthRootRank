@@ -77,7 +77,7 @@ def train(train_set,train_loader, model, loss_func, optimizer, label_count_dict)
             X_j_list_outer.append(X_j_list)
         X_i_list = model(torch.Tensor(X_i_list))
         loss = loss_func(outputs, X_i_list, X_j_list_outer,batch_num = len(X_j_list_outer), r = config.R, M = M) ## the loss of the batch
-        optimizer.zero_grad() # make sure that the new gradient will just be stored.
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
     return loss
@@ -99,11 +99,6 @@ def main():
     is_best = False
     epoch = 0
     train_set = dataloader.EGG_Dataset(path = "data/eeg-eye-state_csv.csv")
-    train_list, train_label = train_set.get_train_data()
-    test_list, test_label = train_set.get_test_data()
-    # convert numpy to tensor
-    train_list = torch.from_numpy(train_list)
-    test_list = torch.from_numpy(test_list)
     train_loader = torch.utils.data.DataLoader(train_set, batch_size = config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKER)
     model = r_Model.r_Model(r_CNN,r_LSTM,cnn_input_channel = 1,lstm_input_feature = 14, cnn_width=config.TIMESTAPE, cnn_height=config.FEATURE_NUM)
     model = model.float()
@@ -122,9 +117,10 @@ def main():
                 is_best = True
         print("epoch[%d]\tloss:%f"%(i,print_loss))
         if i % 3 == 0:
+            train_list, train_label = train_set.get_train_data()
             train_x = model(train_list.float())
-            test_x = model(test_list.float())
-            logreg.my_LogisticRegression(train_x.detach().numpy(), train_label, test_x.detach().numpy(), test_label)
+            logreg.LogisticRegression()
+            return
         save_checkpoint({
             'epoch': i + 1,
             'state_dict': model.state_dict(),
@@ -134,4 +130,9 @@ def main():
     return
 
 if __name__ == "__main__":
-    main()   
+    #main()
+    train_set = dataloader.EGG_Dataset(path="data/eeg-eye-state_csv.csv")
+    train_list, train_label = train_set.get_train_data()
+    train_list = np.array(train_list)
+    train_label = np.array(train_label)
+    a = 1

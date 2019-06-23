@@ -96,9 +96,19 @@ class EGG_Dataset(Dataset):
         return label_count_list
 
     def get_train_data(self):
-        return self.train_list, self.train_label
+        """
+        return the train data with numpy format
+        :return:
+        """
+        return np.array(self.train_list), np.array(self.train_label)
+
     def get_test_data(self):
-        return self.test_list, self.test_label
+        """
+        return the numpy format of the test data
+        :return:
+        """
+        return np.array(self.test_list), np.array(self.test_label)
+
 if __name__ == "__main__":
     dataset = EGG_Dataset("data/eeg-eye-state_csv.csv")
     test = dataset.Num_for_each_class()
